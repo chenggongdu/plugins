@@ -1,0 +1,73 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.youlu.plugin</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Gen Mapper Xml Test File</name>
+
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="support@youlu.com" url="https://www.youlu.com">youlu</vendor>
+
+    <!-- 注册Action -->
+    <actions>
+        <action id="com.youlu"
+                class="com.youlu.plugin.mybatis.MyBatisTestGeneratorAction"
+                text="YL Gen Mybatis Test File"
+                description="GEN MYBATIS PLUS MAPPER XML TEST FILE"
+                icon="/icons/pluginIcon_12_12.png"
+        >
+            <!--      <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift G"/>-->
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+<p>此插件由优路<strong>DCG</strong>编写，旨在显著提升 MyBatis 项目的测试开发效率。它为 IntelliJ IDEA 用户提供了一键生成测试文件的强大功能，是您开发工具箱中的必备利器。</p>
+
+<p><strong>功能亮点：</strong></p>
+<ul>
+  <li>自动解析 MyBatis 的 Mapper XML 配置文件</li>
+  <li>在 <code>test/resources/mybatis</code> 目录下生成高质量的 MyBatis 测试配置文件</li>
+  <li>在 <code>test/java/mapper</code> 目录下生成结构清晰的 Java 测试类</li>
+</ul>
+
+<p>本插件专为开发者设计，简化测试用例编写流程，助力快速验证业务逻辑，提高团队效率。</p>
+
+<p><em>支持 MyBatis Mapper XML 文件的一键测试文件生成，让测试开发更高效、更智能。</em></p>
+
+<hr>
+
+<p><strong>About this plugin:</strong></p>
+<p>This plugin, code by youlu <strong>DCG</strong>, is designed to significantly enhance testing efficiency in MyBatis projects. It provides IntelliJ IDEA users with a robust one-click solution for generating test files, making it an essential tool in your development toolkit.</p>
+
+<p><strong>Key Features:</strong></p>
+<ul>
+  <li>Automatically parses MyBatis Mapper XML configuration files</li>
+  <li>Generates high-quality MyBatis test configuration files under the <code>test/resources/mybatis</code> directory</li>
+  <li>Creates well-structured Java test classes in the <code>test/java/mapper</code> directory</li>
+</ul>
+
+<p>Designed for developers, this plugin simplifies the test case creation process, helping to quickly validate business logic and boost team productivity.</p>
+
+<p><em>Supports one-click test file generation for MyBatis Mapper XML files, making test development more efficient and intelligent.</em></p>
+]]></description>
+
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+
+    </extensions>
+
+</idea-plugin>
