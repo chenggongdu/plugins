@@ -19,7 +19,7 @@
                 description="GEN MYBATIS PLUS MAPPER XML TEST FILE"
                 icon="/icons/pluginIcon_12_12.png"
         >
-            <!--      <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift G"/>-->
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift G"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
     </actions>

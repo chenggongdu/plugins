@@ -5,8 +5,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
+import com.jgoodies.common.base.Strings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -137,8 +139,9 @@ public class MyBatisTestGeneratorAction extends AnAction {
             return;
         }
 
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         String xmlFileName = "Test" + file.getName();
-        String testClassContent = generateTestClassContent(className, xmlFileName, namespace);
+        String testClassContent = generateTestClassContent(className, xmlFileName, namespace, psiFile);
 
         Files.write(testClassFile.toPath(), testClassContent.getBytes(StandardCharsets.UTF_8));
 
@@ -146,35 +149,67 @@ public class MyBatisTestGeneratorAction extends AnAction {
     }
 
 
-    private String generateTestClassContent(String className, String xmlFileName, String mapperClassName) {
+    private String generateTestClassContent(String className, String xmlFileName, String mapperClassName, PsiFile psiFile) {
         String mapperSimpleName = mapperClassName.substring(mapperClassName.lastIndexOf('.') + 1);  // 获取类名部分
+        mapperSimpleName = mapperSimpleName.substring(0, 1).toLowerCase() + mapperSimpleName.substring(1);
+        StringBuilder methodContent = new StringBuilder();
+        methodContent.append(
+                "package com.youlu.mapper;\n\n" +
+                        "import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;\n" +
+                        "import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;\n" +
+                        "import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;\n" +
+                        "import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;\n" +
+                        "import " + mapperClassName + ";\n" +
+                        "import org.apache.ibatis.session.SqlSessionFactory;\n" +
+                        "import org.junit.BeforeClass;\n" +
+                        "import org.junit.Test;\n\n" +
+                        "public class " + className + " {\n" +
+                        "    private static " + mapperClassName + " " + mapperSimpleName + ";\n\n" +
+                        "    @BeforeClass\n" +
+                        "    public static void setUpMyBatisDatabase() {\n" +
+                        "        // Create SqlSessionFactory\n" +
+                        "        SqlSessionFactory builder = new MybatisSqlSessionFactoryBuilder().build(" + className + ".class.getClassLoader().\n" +
+                        "                getResourceAsStream(\"mybatis/" + xmlFileName + "\"));\n\n" +
+                        "        // Add MyBatis-Plus Plugin\n" +
+                        "        final MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();\n" +
+                        "        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());\n" +
+                        "        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());\n" +
+                        "        builder.getConfiguration().addInterceptor(interceptor);\n\n" +
+                        "        // Fetch Mapper\n" +
+                        "        " + mapperSimpleName + " = builder.getConfiguration().getMapper(" + mapperClassName + ".class, builder.openSession(true));\n" +
+                        "    }\n"
+        );
 
-        String testClassContent = "package com.youlu.mapper;\n\n" +
-                "import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;\n" +
-                "import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;\n" +
-                "import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;\n" +
-                "import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;\n" +
-                "import " + mapperClassName + ";\n" +
-                "import org.apache.ibatis.session.SqlSessionFactory;\n" +
-                "import org.junit.BeforeClass;\n\n" +
-                "public class " + className + " {\n" +
-                "    private static " + mapperClassName + " " + mapperSimpleName + ";\n\n" +
-                "    @BeforeClass\n" +
-                "    public static void setUpMyBatisDatabase() {\n" +
-                "        // Create SqlSessionFactory\n" +
-                "        SqlSessionFactory builder = new MybatisSqlSessionFactoryBuilder().build(" + className + ".class.getClassLoader().\n" +
-                "                getResourceAsStream(\"mybatis/" + xmlFileName + "\"));\n\n" +
-                "        // Add MyBatis-Plus Plugin\n" +
-                "        final MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();\n" +
-                "        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());\n" +
-                "        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());\n" +
-                "        builder.getConfiguration().addInterceptor(interceptor);\n\n" +
-                "        // Fetch Mapper\n" +
-                "        " + mapperSimpleName + " = builder.getConfiguration().getMapper(" + mapperClassName + ".class, builder.openSession(true));\n" +
-                "    }\n" +
-                "}";
+        if (psiFile instanceof XmlFile) {
+            XmlFile xmlFile = (XmlFile) psiFile;
+            XmlTag rootTag = xmlFile.getRootTag();
+            if (rootTag != null) {
+                for (XmlTag sqlTag : rootTag.getSubTags()) {
+                    String tagName = sqlTag.getName();
+                    if ("select".equals(tagName) || "insert".equals(tagName) || "update".equals(tagName) || "delete".equals(tagName)) {
+                        String sqlId = sqlTag.getAttributeValue("id");
+                        if (Strings.isBlank(sqlId)) {
+                            continue;
+                        }
+                        methodContent.append(this.generateTestMethod(sqlId));
+                    }
+                }
+            }
+        }
+        methodContent.append("}");
+        return methodContent.toString();
+    }
 
-        return testClassContent;
+    private String generateTestMethod(String sqlId) {
+        // covert to method name
+        String methodName = "test" + sqlId.substring(0, 1).toUpperCase() + sqlId.substring(1);
+        StringBuilder methodContent = new StringBuilder();
+
+        methodContent.append("    @Test\n")
+                .append("    public void " + methodName + "() {\n\n")
+                .append("    }\n");
+
+        return methodContent.toString();
     }
 
 }
