@@ -44,6 +44,28 @@
 
 <hr>
 
+<p><strong>使用方式：</strong></p>
+<ol>
+  <li>定位到 MyBatis 的 Mapper XML 文件。</li>
+  <li>右键点击文件。</li>
+  <li>选择 <strong>“YL Gen MyBatis Test File”</strong>。</li>
+</ol>
+
+<hr>
+
+<p><strong>配置要求：</strong></p>
+<p>在使用插件之前，请确保已在项目的 <code>src/test/resources</code> 目录中添加以下配置文件：</p>
+<pre><code>database-config.properties</code></pre>
+
+<p>文件内容示例如下：</p>
+<pre><code>database.url = jdbc:mysql://localhost:3306/test
+database.username = root
+database.password = 123456</code></pre>
+
+<p>请根据实际项目需求，修改上述配置。</p>
+
+<hr>
+
 <p><strong>About this plugin:</strong></p>
 <p>This plugin, code by youlu <strong>DCG</strong>, is designed to significantly enhance testing efficiency in MyBatis projects. It provides IntelliJ IDEA users with a robust one-click solution for generating test files, making it an essential tool in your development toolkit.</p>
 
@@ -57,7 +79,7 @@
 <p>Designed for developers, this plugin simplifies the test case creation process, helping to quickly validate business logic and boost team productivity.</p>
 
 <p><em>Supports one-click test file generation for MyBatis Mapper XML files, making test development more efficient and intelligent.</em></p>
-]]></description>
+    ]]></description>
 
 
     <!-- Product and plugin compatibility requirements.
